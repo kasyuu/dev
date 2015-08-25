@@ -1,19 +1,26 @@
 package com.mk3.startapplication;
 
+import android.app.SearchManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     TextView tv;
     Button bt;
+    ListView lv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +34,17 @@ public class MainActivity extends AppCompatActivity {
         bt = (Button)findViewById(R.id.mainButton);
         bt.setText("押してください");
 
-        bt.setOnClickListener(new SampleOnClickListener());
+        // リストビューを作成し、配列から生成したアダプターをセット
+        lv = new ListView(this);
+        String[] str = {"検索", "電話"};
+        ArrayAdapter<String> ad = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, str);
+        lv.setAdapter(ad);
+
+        ll.addView(lv);
+
+        bt.setOnClickListener(new ButtonClickListener());
+        lv.setOnItemClickListener(new ListItemClickListener());
+
 
 
     }
@@ -64,10 +81,31 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    class SampleOnClickListener implements View.OnClickListener{
+    class ButtonClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v){
             bt.setText(tv.getText());
+
+        }
+    }
+
+    class ListItemClickListener implements AdapterView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> v, View iv, int pos,long id){
+            Intent it = new Intent();
+            if(pos == 0){
+                // 標準アプリ(検索)起動のインテントを設定
+                it.setAction(Intent.ACTION_SEARCH);
+                // 名前と値の組み合わせをデータとして渡すメソッド
+                it.putExtra(SearchManager.QUERY,"Android 開発");
+                startActivity(it);
+            }else if (pos == 1){
+                // 標準アプリ起動のためのメソッド
+                it.setAction(Intent.ACTION_VIEW);
+                // 電話番号を指定して値としてセット
+                it.setData(Uri.parse("tel:12345678"));
+                startActivity(it);
+            }
 
         }
     }
